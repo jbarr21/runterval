@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+  android:id="@+id/bg"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/dark_grey"
+  tools:context=".ui.WorkoutActivity"
+  tools:deviceIds="wear">
+
+  <android.support.v7.widget.AppCompatTextView
+    android:id="@+id/name_text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@+id/name_guideline"
+    tools:text="Warmup" />
+
+  <android.support.v7.widget.AppCompatTextView
+    android:id="@+id/time_text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="@font/space_mono"
+    android:textAlignment="center"
+    android:textSize="48dp"
+    app:layout_constraintBottom_toTopOf="@+id/start_pause_btn"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:text="03:00" />
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/start_pause_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:src="@drawable/ic_play_arrow_24dp"
+    android:tint="@android:color/white"
+    app:backgroundTint="@color/purple"
+    app:fabSize="mini"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/time_text" />
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/reset_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:clickable="true"
+    android:src="@drawable/ic_refresh_24dp"
+    android:tint="@android:color/white"
+    app:backgroundTint="@android:color/transparent"
+    app:fabSize="mini"
+    app:layout_constraintStart_toStartOf="@+id/time_text"
+    app:layout_constraintTop_toBottomOf="@+id/time_text" />
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/close_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:clickable="true"
+    android:src="@drawable/ic_close_24dp"
+    android:tint="@android:color/white"
+    app:backgroundTint="@android:color/transparent"
+    app:fabSize="mini"
+    app:layout_constraintEnd_toEndOf="@+id/time_text"
+    app:layout_constraintTop_toBottomOf="@+id/time_text" />
+
+  <android.support.constraint.Guideline
+    android:id="@+id/name_guideline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.125" />
+
+</android.support.constraint.ConstraintLayout>
