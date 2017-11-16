@@ -16,8 +16,9 @@ sealed class State {
       override val paused: Boolean = true) : State(), WorkingOut {
 
     override fun name() = "Warmup"
-    override fun togglePause(paused: Boolean): WorkingOut = copy(paused = paused)
-    override fun duration(): Duration = workout.warmup
+    override fun togglePause(paused: Boolean) = copy(paused = paused)
+    override fun reset() = copy(paused = paused, remaining = duration())
+    override fun duration() = workout.warmup
   }
 
   data class Intervals(
@@ -29,8 +30,9 @@ sealed class State {
       override val paused: Boolean = false) : State(), WorkingOut {
 
     override fun name() = "${if (working) "Work" else "Rest"} ${set + 1}"
-    override fun togglePause(paused: Boolean): WorkingOut = copy(paused = paused)
-    override fun duration(): Duration = if (working) interval.work else interval.rest
+    override fun togglePause(paused: Boolean) = copy(paused = paused)
+    override fun reset() = copy(paused = paused, remaining = duration())
+    override fun duration() = if (working) interval.work else interval.rest
   }
 
   data class CoolingDown(
@@ -39,8 +41,9 @@ sealed class State {
       override val paused: Boolean = false) : State(), WorkingOut {
 
     override fun name() = "Cooldown"
-    override fun togglePause(paused: Boolean): WorkingOut = copy(paused = paused)
-    override fun duration(): Duration = workout.cooldown
+    override fun togglePause(paused: Boolean) = copy(paused = paused)
+    override fun reset() = copy(paused = paused, remaining = workout.cooldown)
+    override fun duration() = workout.cooldown
   }
 
   data class WorkoutComplete(val workout: Workout) : State()
@@ -53,6 +56,7 @@ interface WorkingOut {
 
   fun name(): String
   fun togglePause(paused: Boolean): WorkingOut
+  fun reset(): WorkingOut
   fun duration(): Duration
 
   fun updateAfterTick(amount: Long, unit: TemporalUnit): State {

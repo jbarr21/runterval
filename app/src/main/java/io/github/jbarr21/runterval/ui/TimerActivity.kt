@@ -3,32 +3,34 @@ package io.github.jbarr21.runterval.ui
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.os.Vibrator
 import android.support.annotation.ColorInt
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.view.ViewCompat
+import android.support.wear.ambient.AmbientMode
+import android.support.wear.ambient.AmbientMode.AmbientCallback
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import com.jakewharton.rxbinding2.view.RxView
 import com.uber.autodispose.kotlin.autoDisposeWith
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.app.bindInstance
+import io.github.jbarr21.runterval.data.AmbientStream
+import io.github.jbarr21.runterval.data.RxAmbientCallback
 import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.CoolingDown
 import io.github.jbarr21.runterval.data.StateStream
 import io.github.jbarr21.runterval.data.WorkingOut
 import io.github.jbarr21.runterval.data.filterAndMap
 import io.github.jbarr21.runterval.data.toTimeText
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
-class TimerActivity : AutoDisposeWearableActivity() {
+class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallbackProvider {
 
   private val bg: View by bindView(R.id.bg)
   private val txtTime: TextView by bindView(R.id.time_text)
@@ -38,6 +40,8 @@ class TimerActivity : AutoDisposeWearableActivity() {
   private val btnClose: View by bindView(R.id.close_button)
 
   private val stateStream by bindInstance<StateStream>()
+  private val ambientStream by bindInstance<AmbientStream>()
+  private val ambientCallback by lazy { RxAmbientCallback(ambientStream) }
 
   private lateinit var ringDrawable: RingDrawable
 
@@ -45,6 +49,7 @@ class TimerActivity : AutoDisposeWearableActivity() {
     super.onCreate(savedInstanceState)
     setContentView(layout.activity_timer)
     setAmbientEnabled()
+
     setupButtons()
     ringDrawable = RingDrawable(resources.getColor(R.color.purple))
     bg.background = ringDrawable
@@ -54,22 +59,9 @@ class TimerActivity : AutoDisposeWearableActivity() {
         .observeOn(AndroidSchedulers.mainThread())
         .autoDisposeWith(this)
         .subscribe(this::setupUi)
-
-    val stateChanges = stateStream.stateObservable()
-        .filterAndMap<State, WorkingOut>()
-        .map { it.name() }
-        .distinctUntilChanged()
-
-    val workoutCompletions = stateStream.stateObservable()
-        .filterAndMap<State, CoolingDown>()
-        .filter { it.remaining.toMillis() == 0L }
-
-    Observable.merge(stateChanges, workoutCompletions)
-        .skip(1)
-        .observeOn(AndroidSchedulers.mainThread())
-        .autoDisposeWith(this)
-        .subscribe { getSystemService(Vibrator::class.java)?.vibrate(1000) }
   }
+
+  override fun getAmbientCallback(): AmbientCallback = ambientCallback
 
   @SuppressLint("SetTextI18n")
   private fun setupUi(state: WorkingOut) {
@@ -96,14 +88,19 @@ class TimerActivity : AutoDisposeWearableActivity() {
         .autoDisposeWith(this)
         .subscribe { stateStream.setState(it.togglePause(paused = !it.paused) as State) }
 
-    // TODO: set remaining time to current interval time
     RxView.clicks(btnReset)
         .autoDisposeWith(this)
-        .subscribe { Toast.makeText(this, "Reset Timer", Toast.LENGTH_SHORT).show() }
+        .subscribe { Toast.makeText(this, "Longpress to Reset", LENGTH_SHORT).show() }
+
+    RxView.longClicks(btnReset)
+        .map { stateStream.peekState() }
+        .filterAndMap<State, WorkingOut>()
+        .autoDisposeWith(this)
+        .subscribe { stateStream.setState(it.reset() as State) }
 
     RxView.clicks(btnClose)
         .autoDisposeWith(this)
-        .subscribe { Toast.makeText(this, "Longpress to Exit", Toast.LENGTH_SHORT).show() }
+        .subscribe { Toast.makeText(this, "Longpress to Exit", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnClose)
         .autoDisposeWith(this)
