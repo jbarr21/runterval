@@ -34,7 +34,7 @@ class RingDrawable(
 
   override fun onBoundsChange(bounds: Rect) {
     super.onBoundsChange(bounds)
-    val strokeWidth = bounds.width() * 0.075f
+    val strokeWidth = bounds.width() * 0.05f
     ringPaint.strokeWidth = strokeWidth
     val halfStrokeWidth: Int = round(strokeWidth / 2)
     bounds.inset(halfStrokeWidth, halfStrokeWidth)
