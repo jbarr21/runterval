@@ -7,10 +7,10 @@ import android.os.Vibrator
 import io.github.jbarr21.runterval.data.AmbientStream
 import io.github.jbarr21.runterval.data.SampleData
 import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.CoolingDown
+import io.github.jbarr21.runterval.data.State.WorkingOut
+import io.github.jbarr21.runterval.data.State.WorkingOut.CoolingDown
 import io.github.jbarr21.runterval.data.State.WorkoutSelection
 import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.WorkingOut
 import io.github.jbarr21.runterval.data.filterAndMap
 import io.github.jbarr21.runterval.service.AmbientUpdateReceiver
 import io.reactivex.Observable
@@ -59,7 +59,7 @@ class App : Application() {
     stateStream.stateObservable().let {
       Observable.merge(
             it.filterAndMap<State, WorkingOut>()
-                .map { it.name() }
+                .map { it.name }
                 .distinctUntilChanged(),
             it.filterAndMap<State, CoolingDown>()
                 .filter { it.remaining.toMillis() == 0L })

@@ -15,7 +15,7 @@ import io.github.jbarr21.runterval.R.id
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.WarmingUp
+import io.github.jbarr21.runterval.data.State.WorkingOut.WarmingUp
 import io.github.jbarr21.runterval.data.State.WorkoutSelection
 import io.github.jbarr21.runterval.data.StateStream
 import io.github.jbarr21.runterval.data.Workout

@@ -4,10 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import com.uber.autodispose.kotlin.autoDisposeWith
 import io.github.jbarr21.runterval.app.bindInstance
-import io.github.jbarr21.runterval.data.State.WorkoutComplete
+import io.github.jbarr21.runterval.data.State.WorkingOut
+import io.github.jbarr21.runterval.data.State.WorkingOut.WorkoutComplete
 import io.github.jbarr21.runterval.data.State.WorkoutSelection
 import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.WorkingOut
 import io.github.jbarr21.runterval.data.Workout
 
 class LauncherActivity : AutoDisposeWearableActivity() {

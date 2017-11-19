@@ -22,8 +22,8 @@ import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.AmbientStream
 import io.github.jbarr21.runterval.data.RxAmbientCallback
 import io.github.jbarr21.runterval.data.State
+import io.github.jbarr21.runterval.data.State.WorkingOut
 import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.WorkingOut
 import io.github.jbarr21.runterval.data.filterAndMap
 import io.github.jbarr21.runterval.data.toTimeText
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -65,7 +65,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
 
   @SuppressLint("SetTextI18n")
   private fun setupUi(state: WorkingOut) {
-    txtName.text = state.name()
+    txtName.text = state.name
     txtTime.text = state.remaining.toTimeText()
 
     @ColorInt val timerColor: Int = resources.getColor(if (state.paused) R.color.purple else R.color.green)
@@ -74,7 +74,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
     ViewCompat.setBackgroundTintList(btnStartPause, ColorStateList.valueOf(timerColor))
 
     ringDrawable.apply {
-      remainingPct = state.remaining.toMillis() / state.duration().toMillis().toFloat()
+      remainingPct = state.remaining.toMillis() / state.duration.toMillis().toFloat()
       ringColor = timerColor
       invalidateSelf()
     }

@@ -8,8 +8,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.github.jbarr21.runterval.app.bindInstance
+import io.github.jbarr21.runterval.data.State.WorkingOut
 import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.WorkingOut
 import org.threeten.bp.Duration
 import org.threeten.bp.Instant
 import org.threeten.bp.temporal.ChronoUnit
