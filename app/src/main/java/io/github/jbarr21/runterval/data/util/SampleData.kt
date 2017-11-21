@@ -1,4 +1,4 @@
-package io.github.jbarr21.runterval.data
+package io.github.jbarr21.runterval.data.util
 
 import org.threeten.bp.Duration
 

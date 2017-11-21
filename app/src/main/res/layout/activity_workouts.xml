@@ -7,4 +7,5 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   tools:context=".ui.WorkoutActivity"
+  tools:listitem="@layout/simple_list_item_1"
   tools:deviceIds="wear"/>

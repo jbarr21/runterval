@@ -4,14 +4,15 @@ import android.app.AlarmManager
 import android.app.Application
 import android.content.Context
 import android.os.Vibrator
+import io.github.jbarr21.runterval.data.Action.Init
 import io.github.jbarr21.runterval.data.AmbientStream
-import io.github.jbarr21.runterval.data.SampleData
-import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.WorkingOut
-import io.github.jbarr21.runterval.data.State.WorkingOut.CoolingDown
-import io.github.jbarr21.runterval.data.State.WorkoutSelection
-import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.filterAndMap
+import io.github.jbarr21.runterval.data.AppStore
+import io.github.jbarr21.runterval.data.WorkoutState
+import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
+import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut.CoolingDown
+import io.github.jbarr21.runterval.data.util.SampleData
+import io.github.jbarr21.runterval.data.util.filterAndMap
+import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.service.AmbientUpdateReceiver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,11 +24,11 @@ class App : Application() {
 
   val component: Map<Class<*>, *> by lazy { mapOf(
       App::class.java to this,
-      StateStream::class.java to StateStream(),
-      AmbientStream::class.java to AmbientStream()
+      AmbientStream::class.java to AmbientStream(),
+      AppStore::class.java to AppStore()
   )}
 
-  private val stateStream by bindInstance<StateStream>()
+  private val appStore by bindInstance<AppStore>()
   private val alarmManager by lazy { getSystemService(AlarmManager::class.java) }
   private val vibrator: Vibrator? by lazy { getSystemService(Vibrator::class.java) }
 
@@ -36,13 +37,11 @@ class App : Application() {
     Timber.plant(DebugTree())
     setupVibrator()
     setupUpdateLoop()
-
-    stateStream.setState(WorkoutSelection(SampleData.WORKOUTS))
+    appStore.dispatch(Init(SampleData.WORKOUTS))
   }
 
   private fun setupUpdateLoop() {
-    stateStream.stateObservable()
-        .filterAndMap<State, WorkingOut>()
+    appStore.observable()
         .map { !it.paused }
         .distinctUntilChanged()
         .observeOn(AndroidSchedulers.mainThread())
@@ -56,17 +55,18 @@ class App : Application() {
   }
 
   private fun setupVibrator() {
-    stateStream.stateObservable().let {
-      Observable.merge(
-            it.filterAndMap<State, WorkingOut>()
-                .map { it.name }
-                .distinctUntilChanged(),
-            it.filterAndMap<State, CoolingDown>()
-                .filter { it.remaining.toMillis() == 0L })
-          .skip(1)
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe { vibrator?.vibrate(ofSeconds(1).toMillis()) }
-    }
+    Observable.merge(
+          appStore.observable()
+              .map { it.workoutState }
+              .filterAndMap<WorkoutState, WorkingOut>()
+              .map { it.name }
+              .distinctUntilChanged(),
+          appStore.observable()
+              .filter { it.workoutState is CoolingDown }
+              .filter { it.remaining.toMillis() == 0L })
+        .skip(1)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { vibrator?.vibrate(ofSeconds(1).toMillis()) }
   }
 }
 

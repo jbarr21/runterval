@@ -8,8 +8,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.github.jbarr21.runterval.app.bindInstance
-import io.github.jbarr21.runterval.data.State.WorkingOut
-import io.github.jbarr21.runterval.data.StateStream
+import io.github.jbarr21.runterval.data.Action.TimeTick
+import io.github.jbarr21.runterval.data.AppStore
+import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
 import org.threeten.bp.Duration
 import org.threeten.bp.Instant
 import org.threeten.bp.temporal.ChronoUnit
@@ -21,10 +22,10 @@ class AmbientUpdateReceiver : BroadcastReceiver() {
     private val AMBIENT_INTERVAL = Duration.ofSeconds(1)
 
     fun refreshDisplayAndSetNextUpdate(context: Context) {
-      val stateStream by context.bindInstance<StateStream>()
-      stateStream.peekState()
-          .takeIf { it is WorkingOut }
-          .let { stateStream.setState((it as WorkingOut).updateAfterTick(1, ChronoUnit.SECONDS)) }
+      val appStore by context.bindInstance<AppStore>()
+      appStore.state
+          .takeIf { it.workoutState is WorkingOut }
+          .let { appStore.dispatch(TimeTick(1, ChronoUnit.SECONDS)) }
 
       scheduleNextUpdate(context)
     }

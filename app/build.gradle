@@ -58,4 +58,5 @@ dependencies {
 
     // Misc
     implementation 'io.github.inflationx:viewpump:1.0.0'
+    implementation 'com.github.pardom:redux-kotlin:1.2.1'
 }

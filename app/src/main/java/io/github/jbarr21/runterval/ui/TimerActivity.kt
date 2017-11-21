@@ -1,5 +1,6 @@
 package io.github.jbarr21.runterval.ui
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.support.wear.ambient.AmbientMode
 import android.support.wear.ambient.AmbientMode.AmbientCallback
 import android.view.View
 import android.view.View.GONE
+import android.view.View.LAYER_TYPE_SOFTWARE
 import android.view.View.VISIBLE
 import android.widget.TextView
 import android.widget.Toast
@@ -19,15 +21,25 @@ import com.uber.autodispose.kotlin.autoDisposeWith
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.app.bindInstance
+import io.github.jbarr21.runterval.data.Action.Pause
+import io.github.jbarr21.runterval.data.Action.Reset
+import io.github.jbarr21.runterval.data.Action.Resume
 import io.github.jbarr21.runterval.data.AmbientStream
+import io.github.jbarr21.runterval.data.AppState
+import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.RxAmbientCallback
-import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.WorkingOut
-import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.filterAndMap
-import io.github.jbarr21.runterval.data.toTimeText
+import io.github.jbarr21.runterval.data.WorkoutState
+import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
+import io.github.jbarr21.runterval.data.util.filterAndMap
+import io.github.jbarr21.runterval.data.util.observable
+import io.github.jbarr21.runterval.data.util.toTimeText
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
+import io.github.jbarr21.runterval.ui.util.WearPalette
+import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.DEEP_PURPLE
+import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.GREEN
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
+import org.threeten.bp.Duration.ofSeconds
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallbackProvider {
@@ -39,9 +51,12 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
   private val btnReset: View by bindView(R.id.reset_button)
   private val btnClose: View by bindView(R.id.close_button)
 
-  private val stateStream by bindInstance<StateStream>()
+  private val appStore by bindInstance<AppStore>()
   private val ambientStream by bindInstance<AmbientStream>()
   private val ambientCallback by lazy { RxAmbientCallback(ambientStream) }
+
+  private val deepPurple = WearPalette(DEEP_PURPLE)
+  private val green = WearPalette(GREEN)
 
   private lateinit var ringDrawable: RingDrawable
 
@@ -51,11 +66,11 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
     setAmbientEnabled()
 
     setupButtons()
-    ringDrawable = RingDrawable(resources.getColor(R.color.purple))
+    ringDrawable = RingDrawable(resources)
     bg.background = ringDrawable
+    bg.setLayerType(LAYER_TYPE_SOFTWARE, null)
 
-    stateStream.stateObservable()
-        .filterAndMap<State, WorkingOut>()
+    appStore.observable()
         .observeOn(AndroidSchedulers.mainThread())
         .autoDisposeWith(this)
         .subscribe(this::setupUi)
@@ -64,39 +79,46 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
   override fun getAmbientCallback(): AmbientCallback = ambientCallback
 
   @SuppressLint("SetTextI18n")
-  private fun setupUi(state: WorkingOut) {
+  private fun setupUi(state: AppState) {
     txtName.text = state.name
     txtTime.text = state.remaining.toTimeText()
 
-    @ColorInt val timerColor: Int = resources.getColor(if (state.paused) R.color.purple else R.color.green)
+    @ColorInt val ringColor: Int = resources.getColor(if (state.paused) R.color.ring_purple else R.color.ring_green)
+    @ColorInt val ringColorDarker: Int = resources.getColor(if (state.paused) R.color.ring_purple_darker else R.color.ring_green_darker)
     listOf(btnReset, btnClose).forEach { it.visibility = if (state.paused) VISIBLE else GONE }
     btnStartPause.setImageResource(if (state.paused) R.drawable.ic_play_arrow_24dp else R.drawable.ic_pause_24dp)
-    ViewCompat.setBackgroundTintList(btnStartPause, ColorStateList.valueOf(timerColor))
+    ViewCompat.setBackgroundTintList(btnStartPause, ColorStateList.valueOf(ringColor))
 
     ringDrawable.apply {
       remainingPct = state.remaining.toMillis() / state.duration.toMillis().toFloat()
-      ringColor = timerColor
+      ringColors = Pair(ringColor, ringColorDarker)
       invalidateSelf()
+    }
+
+    // TODO: fix animation of timer ring segments
+    val animator = ObjectAnimator.ofFloat(ringDrawable, "ringAnimationOffset", 360f).apply {
+      duration = ofSeconds(5).toMillis()
+      repeatCount = ObjectAnimator.INFINITE
+      start()
     }
   }
 
   private fun setupButtons() {
     RxView.clicks(btnStartPause)
         .debounce(150, MILLISECONDS)
-        .map { stateStream.peekState() }
-        .filterAndMap<State, WorkingOut>()
+        .map { appStore.state.paused }
         .autoDisposeWith(this)
-        .subscribe { stateStream.setState(it.togglePause(paused = !it.paused) as State) }
+        .subscribe { paused -> appStore.dispatch(if (paused) Resume() else Pause()) }
 
     RxView.clicks(btnReset)
         .autoDisposeWith(this)
         .subscribe { Toast.makeText(this, "Longpress to Reset", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnReset)
-        .map { stateStream.peekState() }
-        .filterAndMap<State, WorkingOut>()
+        .map { appStore.state.workoutState }
+        .filterAndMap<WorkoutState, WorkingOut>()
         .autoDisposeWith(this)
-        .subscribe { stateStream.setState(it.reset() as State) }
+        .subscribe { appStore.dispatch(Reset()) }
 
     RxView.clicks(btnClose)
         .autoDisposeWith(this)

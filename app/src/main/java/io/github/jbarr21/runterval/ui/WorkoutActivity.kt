@@ -11,36 +11,42 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.uber.autodispose.kotlin.autoDisposeWith
+import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.id
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.app.bindInstance
-import io.github.jbarr21.runterval.data.State
-import io.github.jbarr21.runterval.data.State.WorkingOut.WarmingUp
-import io.github.jbarr21.runterval.data.State.WorkoutSelection
-import io.github.jbarr21.runterval.data.StateStream
-import io.github.jbarr21.runterval.data.Workout
-import io.github.jbarr21.runterval.data.filterAndMap
+import io.github.jbarr21.runterval.data.Action.SelectWorkout
+import io.github.jbarr21.runterval.data.AppStore
+import io.github.jbarr21.runterval.data.WorkoutState
+import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
+import io.github.jbarr21.runterval.data.WorkoutState.WorkoutSelection
+import io.github.jbarr21.runterval.data.util.Workout
+import io.github.jbarr21.runterval.data.util.filterAndMap
+import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.ui.WorkoutActivity.WorkoutAdapter.WorkoutViewHolder
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
 import kotlinx.android.synthetic.main.activity_workouts.*
 import kotterknife.bindView
 
 class WorkoutActivity : AutoDisposeWearableActivity() {
 
-  private val stateStream by bindInstance<StateStream>()
+  private val appStore by bindInstance<AppStore>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(layout.activity_workouts)
     setAmbientEnabled()
 
-    stateStream.stateObservable()
-        .filterAndMap<State, WorkoutSelection>()
+    appStore.observable()
+        .map { it.workoutState }
+        .filterAndMap<WorkoutState, WorkoutSelection>()
         .take(1)
         .autoDisposeWith(this)
         .subscribe { setupUi(it.workouts) }
 
-    stateStream.stateObservable()
-        .filterAndMap<State, WarmingUp>()
+    appStore.observable()
+        .map { it.workoutState }
+        .filterAndMap<WorkoutState, WorkingOut>()
         .take(1)
         .autoDisposeWith(this)
         .subscribe {
@@ -62,7 +68,7 @@ class WorkoutActivity : AutoDisposeWearableActivity() {
   }
 
   private fun onWorkoutClicked(workout: Workout) {
-    stateStream.setState(WarmingUp(workout))
+    appStore.dispatch(SelectWorkout(workout))
   }
 
   private class WorkoutAdapter(
@@ -70,14 +76,14 @@ class WorkoutActivity : AutoDisposeWearableActivity() {
       private val onClick: (Workout) -> Unit) : Adapter<WorkoutViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
-      val view = LayoutInflater.from(parent.context).inflate(layout.simple_list_item_1, parent, false)
+      val view = LayoutInflater.from(parent.context).inflate(R.layout.simple_list_item_1, parent, false)
       return WorkoutViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
       with(workouts[position]) {
         holder.name.text = name
-        holder.name.setOnClickListener { onClick(this) }
+        holder.itemView.setOnClickListener { onClick(this) }
       }
     }
 

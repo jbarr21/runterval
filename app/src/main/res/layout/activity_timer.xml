@@ -41,7 +41,7 @@
     android:clickable="true"
     android:src="@drawable/ic_play_arrow_24dp"
     android:tint="@android:color/white"
-    app:backgroundTint="@color/purple"
+    app:backgroundTint="@color/timer_fab_purple"
     app:fabSize="mini"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"

@@ -12,7 +12,5 @@ class AmbientStream {
     ambientRelay.accept(ambient)
   }
 
-  fun peekAmbient(): AmbientEvent = ambientRelay.value
-
   enum class AmbientEvent { ENTER, UPDATE, EXIT }
 }

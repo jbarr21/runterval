@@ -1,17 +1,17 @@
-package io.github.jbarr21.runterval.ui
+package io.github.jbarr21.runterval.ui.util
 
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.uber.autodispose.LifecycleEndedException
 import com.uber.autodispose.LifecycleScopeProvider
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.CREATE
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.DESTROY
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.PAUSE
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.RESUME
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.START
-import io.github.jbarr21.runterval.ui.AutoDisposeWearableActivity.ActivityEvent.STOP
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.CREATE
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.DESTROY
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.PAUSE
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.RESUME
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.START
+import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.STOP
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 

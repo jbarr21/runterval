@@ -1,4 +1,4 @@
-package io.github.jbarr21.runterval.data
+package io.github.jbarr21.runterval.data.util
 
 import org.threeten.bp.Duration
 
@@ -8,4 +8,4 @@ fun Duration.toSecondsPart(): Long = (Math.ceil((toMillis() % 60000) / 1000.0) %
 fun Duration.toMinutesPartText(): String = toMinutesPart().toString().padStart(2, '0')
 fun Duration.toSecondsPartText(): String = toSecondsPart().toString().padStart(2, '0')
 
-fun Duration.toTimeText(): String = "${toMinutesPartText()}:${toSecondsPartText()}"
+fun Duration.toTimeText(): String = "${toMinutesPartText()} ${toSecondsPartText()}"
