@@ -14,7 +14,6 @@ import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.id
 import io.github.jbarr21.runterval.R.layout
-import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.Action.SelectWorkout
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState
@@ -27,10 +26,11 @@ import io.github.jbarr21.runterval.ui.WorkoutActivity.WorkoutAdapter.WorkoutView
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
 import kotlinx.android.synthetic.main.activity_workouts.*
 import kotterknife.bindView
+import org.koin.android.ext.android.inject
 
 class WorkoutActivity : AutoDisposeWearableActivity() {
 
-  private val appStore by bindInstance<AppStore>()
+  private val appStore: AppStore by inject()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

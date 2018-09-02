@@ -1,11 +1,13 @@
 package io.github.jbarr21.runterval.app
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.Application
 import android.content.Context
 import android.os.Vibrator
 import io.github.jbarr21.runterval.data.Action.Init
 import io.github.jbarr21.runterval.data.AmbientStream
+import io.github.jbarr21.runterval.data.AppState
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
@@ -16,30 +18,32 @@ import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.service.AmbientUpdateReceiver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.startKoin
+import org.koin.dsl.module.Module
 import org.threeten.bp.Duration.ofSeconds
+import redux.api.Store
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
 class App : Application() {
 
-  val component: Map<Class<*>, *> by lazy { mapOf(
-      App::class.java to this,
-      AmbientStream::class.java to AmbientStream(),
-      AppStore::class.java to AppStore()
-  )}
+  private val appStore: AppStore by inject()
+  private val alarmManager: AlarmManager by inject()
 
-  private val appStore by bindInstance<AppStore>()
-  private val alarmManager by lazy { getSystemService(AlarmManager::class.java) }
   private val vibrator: Vibrator? by lazy { getSystemService(Vibrator::class.java) }
 
   override fun onCreate() {
     super.onCreate()
+    startKoin(this, Modules.modules)
     Timber.plant(DebugTree())
     setupVibrator()
     setupUpdateLoop()
     appStore.dispatch(Init(SampleData.WORKOUTS))
   }
 
+  @SuppressLint("CheckResult")
   private fun setupUpdateLoop() {
     appStore.observable()
         .map { !it.paused }
@@ -54,6 +58,7 @@ class App : Application() {
         }}
   }
 
+  @SuppressLint("CheckResult")
   private fun setupVibrator() {
     Observable.merge(
           appStore.observable()
@@ -68,8 +73,4 @@ class App : Application() {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe { vibrator?.vibrate(ofSeconds(1).toMillis()) }
   }
-}
-
-inline fun <reified T> Context.bindInstance(): Lazy<T> {
-  return lazy { (applicationContext as App).component[T::class.java] as T }
 }

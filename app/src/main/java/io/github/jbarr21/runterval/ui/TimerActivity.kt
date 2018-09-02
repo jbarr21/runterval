@@ -20,7 +20,6 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
-import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.Action.Pause
 import io.github.jbarr21.runterval.data.Action.Reset
 import io.github.jbarr21.runterval.data.Action.Resume
@@ -39,6 +38,7 @@ import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.DEEP_PURPLE
 import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.GREEN
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
+import org.koin.android.ext.android.inject
 import org.threeten.bp.Duration.ofSeconds
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
@@ -51,8 +51,9 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
   private val btnReset: View by bindView(R.id.reset_button)
   private val btnClose: View by bindView(R.id.close_button)
 
-  private val appStore by bindInstance<AppStore>()
-  private val ambientStream by bindInstance<AmbientStream>()
+  private val appStore: AppStore by inject()
+  private val ambientStream: AmbientStream by inject()
+
   private val ambientCallback by lazy { RxAmbientCallback(ambientStream) }
 
   private val deepPurple = WearPalette(DEEP_PURPLE)

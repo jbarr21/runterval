@@ -3,7 +3,6 @@ package io.github.jbarr21.runterval.ui
 import android.content.Intent
 import android.os.Bundle
 import com.uber.autodispose.autoDisposable
-import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut.WorkoutComplete
@@ -11,10 +10,11 @@ import io.github.jbarr21.runterval.data.WorkoutState.WorkoutSelection
 import io.github.jbarr21.runterval.data.util.Workout
 import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
+import org.koin.android.ext.android.inject
 
 class LauncherActivity : AutoDisposeWearableActivity() {
 
-  private val appStore by bindInstance<AppStore>()
+  private val appStore: AppStore by inject()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
