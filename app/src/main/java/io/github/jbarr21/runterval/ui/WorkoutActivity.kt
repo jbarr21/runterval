@@ -10,7 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.uber.autodispose.kotlin.autoDisposeWith
+import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.id
 import io.github.jbarr21.runterval.R.layout
@@ -41,14 +41,14 @@ class WorkoutActivity : AutoDisposeWearableActivity() {
         .map { it.workoutState }
         .filterAndMap<WorkoutState, WorkoutSelection>()
         .take(1)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe { setupUi(it.workouts) }
 
     appStore.observable()
         .map { it.workoutState }
         .filterAndMap<WorkoutState, WorkingOut>()
         .take(1)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe {
           startActivity(Intent(this, TimerActivity::class.java))
           finish()

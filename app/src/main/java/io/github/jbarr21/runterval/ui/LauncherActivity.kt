@@ -2,7 +2,7 @@ package io.github.jbarr21.runterval.ui
 
 import android.content.Intent
 import android.os.Bundle
-import com.uber.autodispose.kotlin.autoDisposeWith
+import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.app.bindInstance
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
@@ -21,7 +21,7 @@ class LauncherActivity : AutoDisposeWearableActivity() {
 
     appStore.observable()
         .take(1)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe {
           when (it.workoutState) {
             is WorkoutSelection -> startWorkoutSelection()

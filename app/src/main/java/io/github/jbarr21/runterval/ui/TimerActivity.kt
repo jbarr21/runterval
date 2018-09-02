@@ -17,7 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import com.jakewharton.rxbinding2.view.RxView
-import com.uber.autodispose.kotlin.autoDisposeWith
+import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.app.bindInstance
@@ -72,7 +72,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
 
     appStore.observable()
         .observeOn(AndroidSchedulers.mainThread())
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe(this::setupUi)
   }
 
@@ -107,25 +107,25 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
     RxView.clicks(btnStartPause)
         .debounce(150, MILLISECONDS)
         .map { appStore.state.paused }
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe { paused -> appStore.dispatch(if (paused) Resume() else Pause()) }
 
     RxView.clicks(btnReset)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe { Toast.makeText(this, "Longpress to Reset", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnReset)
         .map { appStore.state.workoutState }
         .filterAndMap<WorkoutState, WorkingOut>()
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe { appStore.dispatch(Reset()) }
 
     RxView.clicks(btnClose)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe { Toast.makeText(this, "Longpress to Exit", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnClose)
-        .autoDisposeWith(this)
+        .autoDisposable(this)
         .subscribe {
           finishAffinity()
           System.exit(0)

@@ -3,8 +3,10 @@ package io.github.jbarr21.runterval.ui.util
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.uber.autodispose.LifecycleEndedException
-import com.uber.autodispose.LifecycleScopeProvider
+import com.uber.autodispose.lifecycle.CorrespondingEventsFunction
+import com.uber.autodispose.lifecycle.LifecycleEndedException
+import com.uber.autodispose.lifecycle.LifecycleScopeProvider
+import com.uber.autodispose.lifecycle.LifecycleScopes
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.CREATE
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.DESTROY
@@ -12,8 +14,6 @@ import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityE
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.RESUME
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.START
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity.ActivityEvent.STOP
-import io.reactivex.Observable
-import io.reactivex.functions.Function
 
 abstract class AutoDisposeWearableActivity : WearableActivity(), LifecycleScopeProvider<ActivityEvent> {
 
@@ -49,17 +49,13 @@ abstract class AutoDisposeWearableActivity : WearableActivity(), LifecycleScopeP
     lifecycleRelay.accept(DESTROY)
   }
 
-  override fun lifecycle(): Observable<ActivityEvent> {
-    return lifecycleRelay.hide()
-  }
+  override fun lifecycle() = lifecycleRelay.hide()
 
-  override fun correspondingEvents(): Function<ActivityEvent, ActivityEvent> {
-    return ActivityEvent.LIFECYCLE
-  }
+  override fun correspondingEvents() = ActivityEvent.LIFECYCLE
 
-  override fun peekLifecycle(): ActivityEvent? {
-    return lifecycleRelay.value
-  }
+  override fun peekLifecycle() = lifecycleRelay.value
+
+  override fun requestScope() = LifecycleScopes.resolveScopeFromLifecycle(this)
 
   enum class ActivityEvent {
     CREATE,
@@ -74,16 +70,16 @@ abstract class AutoDisposeWearableActivity : WearableActivity(), LifecycleScopeP
       /**
        * Figures out which corresponding next lifecycle event in which to unsubscribe, for Activities.
        */
-      val LIFECYCLE: Function<ActivityEvent, ActivityEvent> = Function { lastEvent ->
-        when (lastEvent) {
-          CREATE -> return@Function DESTROY
-          START -> return@Function STOP
-          RESUME -> return@Function PAUSE
-          PAUSE -> return@Function STOP
-          STOP -> return@Function DESTROY
+      val LIFECYCLE = CorrespondingEventsFunction<ActivityEvent> { lastEvent ->
+        return@CorrespondingEventsFunction when (lastEvent) {
+          CREATE -> DESTROY
+          START -> STOP
+          RESUME -> PAUSE
+          PAUSE -> STOP
+          STOP -> DESTROY
           DESTROY -> throw LifecycleEndedException("Cannot bind to Activity lifecycle when outside of it.")
+          else -> throw UnsupportedOperationException("Binding to $lastEvent not yet implemented")
         }
-        throw UnsupportedOperationException("Binding to $lastEvent not yet implemented")
       }
     }
   }
