@@ -42,6 +42,9 @@ import org.koin.android.ext.android.inject
 import org.threeten.bp.Duration.ofSeconds
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
+/**
+ * Displays the [Workout] timer.
+ */
 class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallbackProvider {
 
   private val bg: View by bindView(R.id.bg)

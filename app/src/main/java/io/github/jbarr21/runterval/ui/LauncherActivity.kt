@@ -12,6 +12,9 @@ import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
 import org.koin.android.ext.android.inject
 
+/**
+ * Springboard activity that decides which screen to launch based on the state of the [Workout].
+ */
 class LauncherActivity : AutoDisposeWearableActivity() {
 
   private val appStore: AppStore by inject()

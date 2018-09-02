@@ -28,6 +28,9 @@ import kotlinx.android.synthetic.main.activity_workouts.*
 import kotterknife.bindView
 import org.koin.android.ext.android.inject
 
+/**
+ * Displays the list of [workouts][Workout].
+ */
 class WorkoutActivity : AutoDisposeWearableActivity() {
 
   private val appStore: AppStore by inject()
