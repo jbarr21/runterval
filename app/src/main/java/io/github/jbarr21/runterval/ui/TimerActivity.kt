@@ -20,6 +20,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
+import io.github.jbarr21.runterval.data.Action
 import io.github.jbarr21.runterval.data.Action.Pause
 import io.github.jbarr21.runterval.data.Action.Reset
 import io.github.jbarr21.runterval.data.Action.Resume
@@ -38,6 +39,7 @@ import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.DEEP_PURPLE
 import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.GREEN
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotterknife.bindView
+import me.tatarka.redux.Dispatcher
 import org.koin.android.ext.android.inject
 import org.threeten.bp.Duration.ofSeconds
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -55,6 +57,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
   private val btnClose: View by bindView(R.id.close_button)
 
   private val appStore: AppStore by inject()
+  private val dispatcher: Dispatcher<Action, Action> by inject()
   private val ambientStream: AmbientStream by inject()
 
   private val ambientCallback by lazy { RxAmbientCallback(ambientStream) }
@@ -112,7 +115,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
         .debounce(150, MILLISECONDS)
         .map { appStore.state.paused }
         .autoDisposable(this)
-        .subscribe { paused -> appStore.dispatch(if (paused) Resume() else Pause()) }
+        .subscribe { paused -> dispatcher.dispatch(if (paused) Resume() else Pause()) }
 
     RxView.clicks(btnReset)
         .autoDisposable(this)
@@ -122,7 +125,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
         .map { appStore.state.workoutState }
         .filterAndMap<WorkoutState, WorkingOut>()
         .autoDisposable(this)
-        .subscribe { appStore.dispatch(Reset()) }
+        .subscribe { dispatcher.dispatch(Reset()) }
 
     RxView.clicks(btnClose)
         .autoDisposable(this)

@@ -35,6 +35,7 @@ class LauncherActivity : AutoDisposeWearableActivity() {
         }
   }
 
+  // TODO: should these be moved elsewhere? action creators, middleware, or reducers?
   private fun startWorkoutSelection() {
     startActivity(Intent(this, WorkoutActivity::class.java))
   }

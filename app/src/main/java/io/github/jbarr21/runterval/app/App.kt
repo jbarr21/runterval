@@ -3,11 +3,9 @@ package io.github.jbarr21.runterval.app
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.Application
-import android.content.Context
 import android.os.Vibrator
+import io.github.jbarr21.runterval.data.Action
 import io.github.jbarr21.runterval.data.Action.Init
-import io.github.jbarr21.runterval.data.AmbientStream
-import io.github.jbarr21.runterval.data.AppState
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
@@ -18,12 +16,11 @@ import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.service.AmbientUpdateReceiver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import org.koin.android.ext.android.get
+import me.tatarka.redux.Dispatcher
+import me.tatarka.redux.SimpleStore
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.android.startKoin
-import org.koin.dsl.module.Module
 import org.threeten.bp.Duration.ofSeconds
-import redux.api.Store
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -31,8 +28,8 @@ class App : Application() {
 
   private val appStore: AppStore by inject()
   private val alarmManager: AlarmManager by inject()
-
-  private val vibrator: Vibrator? by lazy { getSystemService(Vibrator::class.java) }
+  private val dispatcher: Dispatcher<Action, Action> by inject()
+  private val vibrator: Vibrator? by inject()
 
   override fun onCreate() {
     super.onCreate()
@@ -40,7 +37,7 @@ class App : Application() {
     Timber.plant(DebugTree())
     setupVibrator()
     setupUpdateLoop()
-    appStore.dispatch(Init(SampleData.WORKOUTS))
+    dispatcher.dispatch(Init(SampleData.WORKOUTS))
   }
 
   @SuppressLint("CheckResult")

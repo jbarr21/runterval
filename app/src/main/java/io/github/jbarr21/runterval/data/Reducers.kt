@@ -1,5 +1,6 @@
 package io.github.jbarr21.runterval.data
 
+import io.github.jbarr21.runterval.app.App
 import io.github.jbarr21.runterval.data.Action.Pause
 import io.github.jbarr21.runterval.data.Action.Reset
 import io.github.jbarr21.runterval.data.Action.Resume
@@ -18,6 +19,8 @@ import redux.api.Reducer
 
 class Reducers {
   companion object {
+    val app = me.tatarka.redux.Reducer<Action, AppState> { action, state -> state }
+
     val appReducer = Reducer { appState: AppState, action: Any ->
       when (action) {
         is SelectWorkout -> appState.copy(workout = action.workout, workoutState = WarmingUp(action.workout.warmup), remaining = action.workout.warmup)

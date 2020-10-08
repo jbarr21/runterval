@@ -14,7 +14,9 @@ import com.uber.autodispose.autoDisposable
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.id
 import io.github.jbarr21.runterval.R.layout
+import io.github.jbarr21.runterval.data.Action
 import io.github.jbarr21.runterval.data.Action.SelectWorkout
+import io.github.jbarr21.runterval.data.AppState
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
@@ -26,6 +28,7 @@ import io.github.jbarr21.runterval.ui.WorkoutActivity.WorkoutAdapter.WorkoutView
 import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
 import kotlinx.android.synthetic.main.activity_workouts.*
 import kotterknife.bindView
+import me.tatarka.redux.Dispatcher
 import org.koin.android.ext.android.inject
 
 /**
@@ -34,6 +37,7 @@ import org.koin.android.ext.android.inject
 class WorkoutActivity : AutoDisposeWearableActivity() {
 
   private val appStore: AppStore by inject()
+  private val dispatcher: Dispatcher<Action, Action> by inject()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -59,41 +63,35 @@ class WorkoutActivity : AutoDisposeWearableActivity() {
   }
 
   private fun setupUi(workouts: List<Workout>) {
-    val snapHelper = LinearSnapHelper()
-    snapHelper.attachToRecyclerView(list)
-
+    LinearSnapHelper().attachToRecyclerView(list)
     list.apply {
       isCircularScrollingGestureEnabled = false
       isEdgeItemsCenteringEnabled = true
       layoutManager = WearableLinearLayoutManager(this@WorkoutActivity)
-      adapter = WorkoutAdapter(workouts.toMutableList(), this@WorkoutActivity::onWorkoutClicked)
+      adapter = WorkoutAdapter(onClick = { dispatcher.dispatch(SelectWorkout(it)) })
     }
-  }
-
-  private fun onWorkoutClicked(workout: Workout) {
-    appStore.dispatch(SelectWorkout(workout))
   }
 
   private class WorkoutAdapter(
-      private val workouts: MutableList<Workout>,
+      private val workouts: MutableList<Workout> = mutableListOf(),
       private val onClick: (Workout) -> Unit) : Adapter<WorkoutViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
-      val view = LayoutInflater.from(parent.context).inflate(R.layout.simple_list_item_1, parent, false)
-      return WorkoutViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+      WorkoutViewHolder(
+        LayoutInflater.from(parent.context).inflate(R.layout.simple_list_item_1, parent, false),
+        onClick)
 
-    override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
-      with(workouts[position]) {
-        holder.name.text = name
-        holder.itemView.setOnClickListener { onClick(this) }
-      }
-    }
+    override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) = holder.bind(workouts[position])
 
     override fun getItemCount() = workouts.size
 
-    private class WorkoutViewHolder(view: View) : ViewHolder(view) {
+    private class WorkoutViewHolder(view: View, private val onClick: (Workout) -> Unit) : ViewHolder(view) {
       val name: TextView by bindView(id.text1)
+
+      fun bind(workout: Workout) {
+        name.text = workout.name
+        itemView.setOnClickListener { onClick(workout) }
+      }
     }
   }
 }

@@ -8,9 +8,11 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import io.github.jbarr21.runterval.data.Action
 import io.github.jbarr21.runterval.data.Action.TimeTick
 import io.github.jbarr21.runterval.data.AppStore
 import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
+import me.tatarka.redux.Dispatcher
 import org.koin.android.ext.android.inject
 import org.threeten.bp.Duration
 import org.threeten.bp.Instant
@@ -23,20 +25,21 @@ class AmbientUpdateReceiver : BroadcastReceiver() {
     private val AMBIENT_INTERVAL = Duration.ofSeconds(1)
 
     fun scheduleNextUpdate(context: Context) {
+      val alarmManager: AlarmManager by (context.applicationContext as Application).inject()
       val triggerTime = Instant.now().plus(AMBIENT_INTERVAL)
-      val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
       alarmManager.setAlarmClock(AlarmClockInfo(triggerTime.toEpochMilli(), null), createUpdatePendingIntent(context))
     }
 
-    fun createUpdatePendingIntent(context: Context): PendingIntent {
-      return PendingIntent.getBroadcast(context, 0, Intent(AMBIENT_UPDATE_ACTION), FLAG_UPDATE_CURRENT)
-    }
+    fun createUpdatePendingIntent(context: Context) = PendingIntent.getBroadcast(context, 0, Intent(AMBIENT_UPDATE_ACTION), FLAG_UPDATE_CURRENT)
 
     private fun refreshDisplayAndSetNextUpdate(context: Context) {
-      val appStore: AppStore by (context.applicationContext as Application).inject()
+      val app = context.applicationContext as Application
+      val appStore: AppStore by app.inject()
+      val dispatcher: Dispatcher<Action, Action> by app.inject()
+
       appStore.state
         .takeIf { it.workoutState is WorkingOut }
-        .let { appStore.dispatch(TimeTick(1, ChronoUnit.SECONDS)) }
+        .let { dispatcher.dispatch(TimeTick(1, ChronoUnit.SECONDS)) }
 
       scheduleNextUpdate(context)
     }
