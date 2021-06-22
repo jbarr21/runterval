@@ -16,7 +16,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Region.Op
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import io.github.jbarr21.runterval.R
 import java.lang.Math.round
 
@@ -132,7 +132,7 @@ class RingDrawable(
 
   override fun getOpacity() = 255
   override fun setAlpha(alpha: Int) = Unit
-  override fun setColorFilter(filter: ColorFilter) = Unit
+  override fun setColorFilter(filter: ColorFilter?) = Unit
 }
 
 private fun Canvas.inNewStackFrame(ops: () -> Unit) {

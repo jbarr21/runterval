@@ -4,11 +4,6 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.view.ViewCompat
-import android.support.wear.ambient.AmbientMode
-import android.support.wear.ambient.AmbientMode.AmbientCallback
 import android.view.View
 import android.view.View.GONE
 import android.view.View.LAYER_TYPE_SOFTWARE
@@ -16,8 +11,12 @@ import android.view.View.VISIBLE
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.annotation.ColorInt
+import androidx.core.view.ViewCompat
+import androidx.wear.ambient.AmbientModeSupport
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding2.view.RxView
-import com.uber.autodispose.autoDisposable
+import com.uber.autodispose.android.lifecycle.autoDispose
 import io.github.jbarr21.runterval.R
 import io.github.jbarr21.runterval.R.layout
 import io.github.jbarr21.runterval.data.Action
@@ -33,7 +32,7 @@ import io.github.jbarr21.runterval.data.WorkoutState.WorkingOut
 import io.github.jbarr21.runterval.data.util.filterAndMap
 import io.github.jbarr21.runterval.data.util.observable
 import io.github.jbarr21.runterval.data.util.toTimeText
-import io.github.jbarr21.runterval.ui.util.AutoDisposeWearableActivity
+import io.github.jbarr21.runterval.ui.util.RuntervalActivity
 import io.github.jbarr21.runterval.ui.util.WearPalette
 import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.DEEP_PURPLE
 import io.github.jbarr21.runterval.ui.util.WearPalette.Companion.GREEN
@@ -47,7 +46,7 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 /**
  * Displays the [Workout] timer.
  */
-class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallbackProvider {
+class TimerActivity : RuntervalActivity(), AmbientModeSupport.AmbientCallbackProvider {
 
   private val bg: View by bindView(R.id.bg)
   private val txtTime: TextView by bindView(R.id.time_text)
@@ -70,7 +69,7 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(layout.activity_timer)
-    setAmbientEnabled()
+//    setAmbientEnabled()
 
     setupButtons()
     ringDrawable = RingDrawable(resources)
@@ -79,11 +78,11 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
 
     appStore.observable()
         .observeOn(AndroidSchedulers.mainThread())
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe(this::setupUi)
   }
 
-  override fun getAmbientCallback(): AmbientCallback = ambientCallback
+  override fun getAmbientCallback(): AmbientModeSupport.AmbientCallback = ambientCallback
 
   @SuppressLint("SetTextI18n")
   private fun setupUi(state: AppState) {
@@ -114,25 +113,25 @@ class TimerActivity : AutoDisposeWearableActivity(), AmbientMode.AmbientCallback
     RxView.clicks(btnStartPause)
         .debounce(150, MILLISECONDS)
         .map { appStore.state.paused }
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe { paused -> dispatcher.dispatch(if (paused) Resume() else Pause()) }
 
     RxView.clicks(btnReset)
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe { Toast.makeText(this, "Longpress to Reset", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnReset)
         .map { appStore.state.workoutState }
         .filterAndMap<WorkoutState, WorkingOut>()
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe { dispatcher.dispatch(Reset()) }
 
     RxView.clicks(btnClose)
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe { Toast.makeText(this, "Longpress to Exit", LENGTH_SHORT).show() }
 
     RxView.longClicks(btnClose)
-        .autoDisposable(this)
+        .autoDispose(this)
         .subscribe {
           finishAffinity()
           System.exit(0)

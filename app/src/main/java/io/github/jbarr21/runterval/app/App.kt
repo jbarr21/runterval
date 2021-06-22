@@ -17,7 +17,6 @@ import io.github.jbarr21.runterval.service.AmbientUpdateReceiver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.redux.Dispatcher
-import me.tatarka.redux.SimpleStore
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.android.startKoin
 import org.threeten.bp.Duration.ofSeconds

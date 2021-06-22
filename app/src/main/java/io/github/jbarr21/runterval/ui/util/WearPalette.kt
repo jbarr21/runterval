@@ -1,7 +1,7 @@
 package io.github.jbarr21.runterval.ui.util
 
 import android.graphics.Color
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 
 data class WearPalette(@ColorInt private val appColor: Int) {
   companion object {

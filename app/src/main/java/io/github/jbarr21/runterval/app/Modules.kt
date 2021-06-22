@@ -29,7 +29,7 @@ object Modules {
 
   private val dataModule : Module = applicationContext {
     provide { AmbientStream() }
-    provide { store }
+    provide { store as AppStore }
     provide { store as Store<AppState> }
     provide { Dispatcher.forStore(get(), Reducers.app) }
     provide { Reducer { _: Action, state: AppState -> state } as Reducer<Action, AppState> }
