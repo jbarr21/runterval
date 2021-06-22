@@ -1,0 +1,63 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    buildToolsVersion '30.0.3'
+    compileSdkVersion 30
+    defaultConfig {
+        minSdkVersion 25
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    api 'com.google.android.gms:play-services-wearable:17.1.0'
+    api 'androidx.appcompat:appcompat:1.4.0-alpha02'
+    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    api 'androidx.core:core-ktx:1.5.0'
+    api 'androidx.recyclerview:recyclerview:1.2.1'
+    api 'androidx.wear:wear:1.2.0-alpha10'
+
+    // Rx
+    api 'io.reactivex.rxjava2:rxjava:2.2.21'
+    api 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    api 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
+    api 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+    api 'com.jakewharton.rxbinding2:rxbinding-design-kotlin:2.0.0'
+    api 'com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:2.0.0'
+    api 'com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:2.0.0'
+    api 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0'
+    api 'com.uber.autodispose:autodispose-android-archcomponents:1.4.0'
+    api 'com.uber.autodispose:autodispose:1.4.0'
+
+    // JW
+    api 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
+    api 'com.jakewharton.threetenabp:threetenabp:1.0.5'
+    api 'com.jakewharton.timber:timber:4.7.1'
+
+    // Redux
+    api 'me.tatarka.redux:redux-core:0.10'
+    api 'me.tatarka.redux:redux-android:0.10'
+    api 'me.tatarka.redux:redux-android-lifecycle:0.10'
+    api 'me.tatarka.redux:redux-thunk:0.10'
+    api 'me.tatarka.redux:redux-rx:0.10'
+    api 'me.tatarka.redux:redux-rx2:0.10'
+    api 'org.rekotlin:rekotlin:1.0.0'
+
+    // Misc
+    api 'org.koin:koin-android:0.9.3'
+    api 'io.github.inflationx:viewpump:2.0.3'
+}
