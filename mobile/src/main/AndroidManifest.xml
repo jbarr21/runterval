@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="io.github.jbarr21.runterval"
+<manifest package="io.github.jbarr21.runterval.mobile"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".app.App"
+        android:name="io.github.jbarr21.runterval.app.App"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 

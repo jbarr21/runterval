@@ -13,13 +13,13 @@
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
 
-    <activity android:name=".ui.LauncherActivity" />
-    <activity android:name=".ui.WorkoutActivity" />
-    <activity android:name=".ui.TimerActivity" />
+    <activity android:name=".ui.launcher.RootActivity" />
+    <activity android:name=".ui.workout.WorkoutActivity" />
+    <activity android:name=".ui.timer.TimerActivity" />
 
     <activity-alias
       android:name=".Launcher"
-      android:targetActivity=".ui.LauncherActivity">
+      android:targetActivity=".ui.launcher.RootActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

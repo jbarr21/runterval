@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-        package="io.github.jbarr21.runterval"
+        package="io.github.jbarr21.runterval.wear"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature android:name="android.hardware.type.watch" />
@@ -11,7 +11,7 @@
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:name=".app.App"
+            android:name="io.github.jbarr21.runterval.app.App"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
